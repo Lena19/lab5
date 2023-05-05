@@ -46,3 +46,42 @@ Matrix<std::string> Matrix<std::string>::operator-(Matrix<std::string>& mtx) {
 	}
 	return res;
 }
+
+template<>
+int Matrix<std::string>::rank() const {
+	const double EPS = 1e-9;
+    int rank = 0;
+    
+    std::vector<std::vector<double> > A;
+    A.resize(_rows_n);
+    for(int i = 0; i < _rows_n; i++) {
+    	A[i].resize(_cols_n);
+    	for(int j = 0; j < _cols_n; j++) {
+    		A[i][j] = _elems[i][j].size();
+    	}
+    }
+    
+
+    std::vector<bool> row_selected(_rows_n, false);
+    for (int i = 0; i < _cols_n; ++i) {
+        int j;
+        for (j = 0; j < _rows_n; ++j) {
+            if (!row_selected[j] && abs(A[j][i]) > EPS)
+                break;
+        }
+
+        if (j != _rows_n) {
+            ++rank;
+            row_selected[j] = true;
+            for (int p = i + 1; p < _cols_n; ++p)
+                A[j][p] /= A[j][i];
+            for (int k = 0; k < _rows_n; ++k) {
+                if (k != j && abs(A[k][i]) > EPS) {
+                    for (int p = i + 1; p < _cols_n; ++p)
+                        A[k][p] -= A[j][p] * A[k][i];
+                }
+            }
+        }
+    }
+    return rank;
+}

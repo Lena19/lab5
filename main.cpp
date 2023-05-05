@@ -33,7 +33,7 @@ int main() {
 	mtx1.sort_cols(1, std::less<int>());
 	std::cout << "mtx1 after sorting the 1st col with less<int>\n" << mtx1 << '\n';
 
-
+	std::cout << "mtx1 rank\n" << mtx1.rank() << '\n'; 
 
 
 	std::cout << "Example for double" << '\n';
@@ -78,4 +78,6 @@ int main() {
 	std::cout << mtx5 + mtx6 << '\n';
 	std::cout << "mtx5 - mtx6\n";
 	std::cout << mtx5 - mtx6 << '\n';
+
+	std::cout << "mtx5 rank\n" << mtx5.rank() << '\n';
 }

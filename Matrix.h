@@ -17,6 +17,10 @@ private:
 	void adjust_rows();
 public: 
 	Matrix(size_t row, size_t col);
+
+	template<size_t N, size_t M>
+	constexpr Matrix(std::integral_constant<size_t, N>, std::integral_constant<size_t, M>);
+
 	//for Matrix<std::string> only
 	Matrix(std::string row, std::string col);	
 	Matrix(const Matrix& mtx);
@@ -42,6 +46,8 @@ public:
 
 	size_t Rows() const;
 	size_t Cols() const;
+
+	int rank() const;
 
 	template<typename X>
 	friend std::ostream& operator<<(std::ostream& os, const Matrix<X>& mtx);

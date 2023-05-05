@@ -12,7 +12,7 @@ Matrix<T>::Matrix(size_t row, size_t col) {
 	_elems.resize(_rows_n);
 	std::for_each(_elems.begin(), _elems.end(), [this](typename Matrix<T>::Row_t& r) {
 		r.resize(_cols_n);
-		fill(r.begin(), r.end(), *(new T()));
+		fill(r.begin(), r.end(), T());
 	});	
 }
 
@@ -40,7 +40,7 @@ void Matrix<T>::adjust_rows() {
 		//if row_length is not enough -> fill "tail" with default elements
 		//else if row_length is too big -> cut the "tail"
 		if(r.size() < _cols_n) {
-			fill_n(r.end(), _cols_n - r.size(), *(new T()));
+			fill_n(r.end(), _cols_n - r.size(), T());
 		}
 		else if(r.size() > _cols_n) {
 			r.resize(_cols_n);
@@ -70,7 +70,7 @@ void Matrix<T>::resize(size_t rows, size_t cols) {
 	if(_rows_n > old_rows_n) {
 		std::for_each(_elems.begin() + old_rows_n, _elems.end(), 
 			[](typename Matrix<T>::Row_t& r) {
-				fill(r.begin(), r.end(), *(new T()));
+				fill(r.begin(), r.end(), T());
 		});	
 	}
 
@@ -78,7 +78,7 @@ void Matrix<T>::resize(size_t rows, size_t cols) {
 	if(_cols_n > old_cols_n) {
 		std::for_each(_elems.begin(), _elems.end(), 
 			[this, &old_cols_n](typename Matrix<T>::Row_t& r) {
-				fill_n(r.begin() + old_cols_n, _cols_n - old_cols_n, *(new T()));
+				fill_n(r.begin() + old_cols_n, _cols_n - old_cols_n, T());
 		});	
 	}
 }
@@ -212,4 +212,42 @@ size_t Matrix<T>::Rows() const {
 template<class T>
 size_t Matrix<T>::Cols() const {
 	return _cols_n;
+}
+
+template<class T>
+int Matrix<T>::rank() const {
+	const double EPS = 1e-9;
+    int rank = 0;
+
+    std::vector<std::vector<double> > A;
+    A.resize(_rows_n);
+    for(int i = 0; i < _rows_n; i++) {
+    	A[i].resize(_cols_n);
+    	for(int j = 0; j < _cols_n; j++) {
+    		A[i][j] = _elems[i][j];
+    	}
+    }
+
+    std::vector<bool> row_selected(_rows_n, false);
+    for (int i = 0; i < _cols_n; ++i) {
+        int j;
+        for (j = 0; j < _rows_n; ++j) {
+            if (!row_selected[j] && abs(A[j][i]) > EPS)
+                break;
+        }
+
+        if (j != _rows_n) {
+            ++rank;
+            row_selected[j] = true;
+            for (int p = i + 1; p < _cols_n; ++p)
+                A[j][p] /= A[j][i];
+            for (int k = 0; k < _rows_n; ++k) {
+                if (k != j && abs(A[k][i]) > EPS) {
+                    for (int p = i + 1; p < _cols_n; ++p)
+                        A[k][p] -= A[j][p] * A[k][i];
+                }
+            }
+        }
+    }
+    return rank;
 }
